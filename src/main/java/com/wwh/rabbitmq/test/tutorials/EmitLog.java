@@ -7,40 +7,39 @@ import com.rabbitmq.client.ConnectionFactory;
 
 /**
  * <pre>
- * 订阅发布 
- * 
+ * 订阅发布 -- 发布消息到交换
+ * 所有关联的队列都将收到消息
  * ReceiveLogs 订阅消息
  * </pre>
  */
 public class EmitLog {
 
-	private static final String EXCHANGE_NAME = "logs";
+    private static final String EXCHANGE_NAME = "logs-exchange";
 
-	public static void main(String[] argv) throws Exception {
-		ConnectionFactory factory = new ConnectionFactory();
-		factory.setHost("localhost");
-		try (Connection connection = factory.newConnection(); Channel channel = connection.createChannel()) {
+    public static void main(String[] argv) throws Exception {
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost("localhost");
+        try (Connection connection = factory.newConnection(); Channel channel = connection.createChannel()) {
 
-			/**
-			 * 定义交换，指定交换名称和类型
-			 * 主动声明非自动删除、非持久交换，不带任何额外参数
-			 */
-			channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.FANOUT);
+            /**
+             * 定义交换，指定交换名称和类型 主动声明非自动删除、非持久交换，不带任何额外参数
+             */
+            channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.FANOUT);
 
-			String message = getMessage(argv);
+            String message = getMessage(argv);
 
-			/**
-			 * 发送消息到指定交换
-			 */
-			channel.basicPublish(EXCHANGE_NAME, "", null, message.getBytes("UTF-8"));
-			System.out.println(" [x] Sent '" + message + "'");
-		}
-	}
+            /**
+             * 发送消息到指定交换
+             */
+            channel.basicPublish(EXCHANGE_NAME, "", null, message.getBytes("UTF-8"));
+            System.out.println(" [x] Sent '" + message + "'");
+        }
+    }
 
-	private static String getMessage(String[] strings) {
-		if (strings.length < 1)
-			return "info: Hello World!";
-		return String.join(" ", strings);
-	}
+    private static String getMessage(String[] strings) {
+        if (strings.length < 1)
+            return "info: Hello World!";
+        return String.join(" ", strings);
+    }
 
 }
