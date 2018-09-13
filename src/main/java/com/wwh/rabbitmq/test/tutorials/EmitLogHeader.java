@@ -5,6 +5,13 @@ import com.rabbitmq.client.*;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * <pre>
+ * headers 交换器允许匹配 AMQP 消息的 header 而非路由键
+ * 据说效率不高 
+ * </pre>
+ * 
+ */
 public class EmitLogHeader {
 
 	private static final String EXCHANGE_NAME = "header_test";
@@ -18,6 +25,8 @@ public class EmitLogHeader {
 		// The API requires a routing key, but in fact if you are using a header exchange the
 		// value of the routing key is not used in the routing. You can store information
 		// for the receiver here as the routing key is still available in the received message.
+		// API需要一个路由键，但实际上，如果使用头交换，路由键的值不会在路由中使用。
+		// 您可以在这里为接收者存储信息，因为路由键在接收到的消息中仍然可用。
 		String routingKey = "ourTestRoutingKey";
 
 		// Argument processing: the first arg is the message, the rest are

@@ -26,13 +26,14 @@ public class ReceiveLogs {
 		 * 定义交换，指定名称和类型
 		 */
 		channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.FANOUT);
-		
+
 		/**
+		 * 主动声明一个由服务器命名的独占、自动删除、非持久队列。
 		 * 获取随机队列名称
 		 */
 		String queueName = channel.queueDeclare().getQueue();
-		System.out.println("random queue name : "+queueName);
-		
+		System.out.println("random queue name : " + queueName);
+
 		/**
 		 * 绑定队列和交换
 		 */

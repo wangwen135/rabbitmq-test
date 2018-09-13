@@ -10,15 +10,18 @@ import java.io.InputStreamReader;
  * <pre>
  * 路由
  * 消息生产者：EmitLogDirect
- * 创建一个由服务器命名的独占、自动删除、非持久队列
- * 并将队列绑定到交换：direct_logs
+ * 使用指定的队列，并绑定到交换：direct_logs
  * 使用指定的路由键
+ * 
+ * 启动多个实例，多个实例分别消费同一个队列中的数据，一次一条
  * </pre>
  *
  */
-public class ReceiveLogsDirect {
+public class ReceiveLogsDirect2 {
 
 	private static final String EXCHANGE_NAME = "direct_logs";
+
+	private static final String QUEUE_NAME = "info_logs";
 
 	public static void main(String[] argv) throws Exception {
 		ConnectionFactory factory = new ConnectionFactory();
@@ -28,10 +31,6 @@ public class ReceiveLogsDirect {
 
 		// 定义一个直接交换
 		channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.DIRECT);
-
-		// 主动声明一个由服务器命名的独占、自动删除、非持久队列。
-		// 获取随机的队列名称
-		String queueName = channel.queueDeclare().getQueue();
 
 		if (argv.length < 1) {
 			System.out.println("Usage: ReceiveLogsDirect [info] [warn] [error]");
@@ -43,14 +42,20 @@ public class ReceiveLogsDirect {
 			argv = line.split("\\s+");
 		}
 
+		// 持久的 非独占 非自删除 队列
+		channel.queueDeclare(QUEUE_NAME, true, false, false, null);
+
 		for (String severity : argv) {
 			// 将队列绑定到指定的交换
 			// 使用指定的路由键
-			channel.queueBind(queueName, EXCHANGE_NAME, severity);
-			System.out.println("队列：" + queueName + " 绑定：" + severity);
+			channel.queueBind(QUEUE_NAME, EXCHANGE_NAME, severity);
+			System.out.println("队列：" + QUEUE_NAME + " 绑定：" + severity);
 
 		}
 		System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
+
+		// 服务器将交付的消息的最大数量，如果为0无限制
+		channel.basicQos(1);
 
 		Consumer consumer = new DefaultConsumer(channel) {
 			@Override
@@ -59,6 +64,6 @@ public class ReceiveLogsDirect {
 				System.out.println(" [x] Received '" + envelope.getRoutingKey() + "':'" + message + "'");
 			}
 		};
-		channel.basicConsume(queueName, true, consumer);
+		channel.basicConsume(QUEUE_NAME, true, consumer);
 	}
 }

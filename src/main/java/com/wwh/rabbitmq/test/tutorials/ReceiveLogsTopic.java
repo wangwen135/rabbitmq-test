@@ -2,8 +2,20 @@ package com.wwh.rabbitmq.test.tutorials;
 
 import com.rabbitmq.client.*;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
+/**
+ * <pre>
+ * 主题（通配符路由模式）
+ * 用.（点）分隔多个单词
+ * *（星号）可以替代一个单词
+ * #（井号）可以替换零个或多个单词 
+ * 
+ * 消息生产者：EmitLogTopic
+ * </pre>
+ */
 public class ReceiveLogsTopic {
 
 	private static final String EXCHANGE_NAME = "topic_logs";
@@ -19,11 +31,17 @@ public class ReceiveLogsTopic {
 
 		if (argv.length < 1) {
 			System.err.println("Usage: ReceiveLogsTopic [binding_key]...");
-			System.exit(1);
+
+			System.out.println("输入队列需要绑定的路由key，* 代替一个单词，# 代替多个单词");
+			BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+			String line = br.readLine();
+
+			argv = line.split("\\s+");
 		}
 
 		for (String bindingKey : argv) {
 			channel.queueBind(queueName, EXCHANGE_NAME, bindingKey);
+			System.out.println("队列：" + queueName + " 绑定：" + bindingKey);
 		}
 
 		System.out.println(" [*] Waiting for messages. To exit press CTRL+C");

@@ -11,6 +11,12 @@ import com.rabbitmq.client.Envelope;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
+/**
+ * <pre>
+ * RPC 服务端 
+ * </pre>
+ *
+ */
 public class RPCServer {
 
 	private static final String RPC_QUEUE_NAME = "rpc_queue";
@@ -29,8 +35,10 @@ public class RPCServer {
 
 		try (Connection connection = factory.newConnection(); Channel channel = connection.createChannel()) {
 
+			// 定义一个队列
 			channel.queueDeclare(RPC_QUEUE_NAME, false, false, false, null);
 
+			// 预取计数
 			channel.basicQos(1);
 
 			System.out.println(" [x] Awaiting RPC requests");
